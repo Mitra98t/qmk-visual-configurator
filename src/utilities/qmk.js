@@ -7,17 +7,18 @@ export class QmkCodes{
     listArray.forEach((el, idx) => {
       if (el.slice(0,4) === "|Key"){
         listTitle = this.parseListName(listArray[idx-2])
-        lists[listTitle] = []
+        lists[listTitle[1]] = {title: listTitle[0], list: []}
       }else{
         if(el[0] === "|" && el[1] !== "-")
-          lists[listTitle].push(this.parseRow(el))
+          lists[listTitle[1]].list.push(this.parseRow(el))
       }
     });
     return lists
   }
 
   static parseListName(listNameRow){
-    return listNameRow.split("[")[1].split("]")[0].replace(/\s+/g, '')
+    let title = listNameRow.split("[")[1].split("]")[0]
+    return [title, title.replace(/\s+/g, '')]
   }
 
   static parseRow(row){
@@ -26,11 +27,11 @@ export class QmkCodes{
     return {
       code: rowArray[1],
       alternative: rowArray[2].split(",").map((el) => el.trim()),
-      description: rowArray[3].replace(/and/g, ""),
+      description: " " + rowArray[3].replace(/and/g, "") + " ",
       descriptionUnformatted: rowArrayUnformatted[3].replace(/`/g, ""),
       os: {
         windows: rowArray[4] === "✔",
-        mac: rowArray[5] === "✔",
+        macos: rowArray[5] === "✔",
         linux: rowArray[6] === "✔",
       }
     }
@@ -42,7 +43,6 @@ export class QmkCodes{
         if (key.description.includes(keycode)){
           return key
         }
-      
     }
     return null
   }
