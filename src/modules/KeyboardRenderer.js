@@ -5,12 +5,15 @@ import KeycodeOptions from "./KeycodeOptions";
 
 export default function KeyboardRenderer({ targetOS, json }) {
   const [kbData, setKbData] = useState(JSON.parse(json));
+  const [layoutName, setLayoutName] = useState("")
   const [kbMatrix, setKbMatrix] = useState(null);
   const [gridDim, setGridDim] = useState({ width: 0, height: 0 });
   const [selectedKey, setSelectedKey] = useState(null);
   const [currentLayer, setCurrentLayer] = useState("base");
 
+
   useEffect(() => {
+    setLayoutName(Object.keys(kbData.layouts)[0]);
     let kbM = { base: Object.values(kbData.layouts)[0].layout };
     kbM.base.map((key) => {
       key.code = "EMPTY";
@@ -75,6 +78,41 @@ export default function KeyboardRenderer({ targetOS, json }) {
     setCurrentLayer(newLayerName);
     setSelectedKey(null);
   };
+
+  let formatAndDownload = () => {
+    let kb = { ...kbMatrix };
+    let layers = Object.keys(kb);
+    let formatted = `enum layer_names {\n`;
+    layers.forEach((layer,layeridx) => {
+      formatted += `  ${layer}${layeridx === layers.length-1 ? '':','}\n`;
+    })
+    formatted += `\n};\n\n`;
+    formatted += `const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {\n`;
+    layers.forEach((layer, layeridx) => {
+      formatted += `  [${layer}] = ${layoutName}(\n\t\t`;
+      kb[layer].forEach((key, keyidx) => {
+        let keycode = key.code === 'EMPTY' ? 'KC_TRNS' : key.code;
+        if(keyidx > 0 && key.y !== kb[layer][keyidx-1].y){
+          formatted += `\n\t\t`;
+          for (let i = 0; i < key.x; i++) {
+            formatted += '\t\t\t\t\t';
+          }
+        }
+        formatted += `${keycode}${keyidx === kb[layer].length-1 ? '\n':','}${keycode.length > 6 ? '\t' : '\t\t\t'}`;
+        
+      });
+      formatted += `  )${layeridx === layers.length-1 ? '':','}\n`;
+    });
+
+    formatted += `};\n`;
+
+    let blob = new Blob([formatted], { type: "text/plain" });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "keymap.c";
+    a.click();
+  }
 
   return (
     <div className="w-full h-full flex flex-row items-center justify-center">
@@ -196,6 +234,7 @@ export default function KeyboardRenderer({ targetOS, json }) {
               Set Ignore to EMPTY
             </button>
           </div>
+          <button className="btn btn-success" onClick={formatAndDownload} >Download</button>
         </div>
       </div>
     </div>

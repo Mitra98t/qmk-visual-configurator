@@ -32,7 +32,7 @@ function App() {
   const [theme, setTheme] = useState("coffee");
 
   const [inputJson, setInputJson] = useState("");
-  const [json, setJson] = useState("");
+  const [json, setJson] = useState(``);
   return (
     <div
       data-theme={theme}
@@ -108,7 +108,17 @@ function App() {
       ) : (
         <div className="w-10/12 h-auto aspect-[7/3] flex flex-col items-end gap-4 justify-center">
           <KeyboardRenderer targetOS={targetOS} json={json} />
-          <button onClick={() => {setInputJson(""); setJson("")}} className="btn btn-error float-left">Exit</button>
+          <div className="w-full h-fit flex items-center justify-end">
+            <button
+              onClick={() => {
+                setInputJson("");
+                setJson("");
+              }}
+              className="btn btn-error float-left"
+            >
+              Exit
+            </button>
+          </div>
         </div>
       )}
       <div className="toast" id="toaster"></div>
