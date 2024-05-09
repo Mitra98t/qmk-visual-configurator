@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { QmkCodes } from "../utilities/qmk";
-import Fuse from "fuse.js";
 import KeycodeList from "./KeycodeList";
 
 export default function KeycodeOptions({
@@ -10,7 +9,7 @@ export default function KeycodeOptions({
   updateKeys,
   targetOS,
   kbMatrix,
-  currentLayer
+  currentLayer,
 }) {
   const [keyMode, setKeyMode] = useState("BasicKeycodes");
   const [qmkLists, setQmkLists] = useState(null);
@@ -23,6 +22,30 @@ export default function KeycodeOptions({
     ).then((response) => {
       response.text().then((data) => {
         let newQmkLists = QmkCodes.parseFullList(data);
+        Object.keys(newQmkLists).forEach((key) => {
+          if(![
+            "BasicKeycodes",
+            "LayerSwitching",
+            "Audio",
+            "AutoShift",
+            "Autocorrect",
+            'Bluetooth',
+            'CapsWord',
+            'DynamicMacros',
+            'GraveEscape',
+            'KeyLock',
+            'LeaderKey',
+            'MagicKeycodes',
+            'MouseKeys',
+            'DynamicTappingTerm',
+            'RGBLighting',
+            'RGBMatrixLighting',
+            'RepeatKey',
+            
+          ].includes(key))
+            delete newQmkLists[key];
+        })
+
         setQmkLists(newQmkLists);
         setListShow(newQmkLists[keyMode].list.map((el) => ({ item: el })));
       });
@@ -39,19 +62,16 @@ export default function KeycodeOptions({
     setKeyMode("BasicKeycodes");
     setSelectedKey(null);
     setSelectedTargetLayer(null);
-
   }, [currentLayer]);
 
   const [layerMode, setLayerMode] = useState(null);
-
 
   const [selectedTargetLayer, setSelectedTargetLayer] = useState(null);
 
   useEffect(() => {
     setSelectedTargetLayer(null);
     setLayerMode(null);
-  }, [selectedKey,currentLayer])
-  
+  }, [selectedKey, currentLayer]);
 
   return selectedKey ? (
     <div className="w-full h-full flex flex-col items-start justify-start gap-2">
@@ -61,9 +81,7 @@ export default function KeycodeOptions({
         className="select select-bordered w-full"
       >
         {qmkLists &&
-          Object.keys(qmkLists)
-            .filter((l) => ["BasicKeycodes", "LayerSwitching"].includes(l))
-            .map((list) => (
+          Object.keys(qmkLists).map((list) => (
               <option defaultChecked={keyMode === list} value={list}>
                 {qmkLists[list].title}
               </option>
@@ -109,13 +127,13 @@ export default function KeycodeOptions({
                         key={layer}
                         onClick={() => {
                           if (layerMode.includes("kc")) {
-                            setSelectedTargetLayer(idx);
+                            setSelectedTargetLayer(layer);
                           } else {
                             let newSelectedKey = {
                               ...selectedKey,
                               code: `${layerMode
                                 .slice(0, 2)
-                                .toUpperCase()}(${idx})`,
+                                .toUpperCase()}(${layer})`,
                             };
                             setSelectedKey(newSelectedKey);
                             updateKeys(newSelectedKey);
@@ -140,7 +158,10 @@ export default function KeycodeOptions({
                 updateKeys={updateKeys}
                 targetOS={targetOS}
                 customKeycodeCreator={(code) => {
-                  return `${layerMode.slice(0,2)}(${selectedTargetLayer}, ${code})`;
+                  return `${layerMode.slice(
+                    0,
+                    2
+                  )}(${selectedTargetLayer}, ${code})`;
                 }}
               />
             )
@@ -148,18 +169,15 @@ export default function KeycodeOptions({
             <></>
           )}
         </>
-      ) : keyMode === "BasicKeycodes" ? (
+      ) :  (
         <KeycodeList
-          list={qmkLists.BasicKeycodes}
+          list={qmkLists[keyMode]}
           selectedKey={selectedKey}
           setSelectedKey={setSelectedKey}
           updateKeys={updateKeys}
           targetOS={targetOS}
           keyboardInput
-        />
-      ) : (
-        <></>
-      )}
+        />)}
     </div>
   ) : (
     <div className="w-full h-full flex flex-col items-start justify-start">

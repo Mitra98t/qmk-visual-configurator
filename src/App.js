@@ -33,6 +33,66 @@ function App() {
 
   const [inputJson, setInputJson] = useState("");
   const [json, setJson] = useState(``);
+
+  const [kbMatrix, setKbMatrix] = useState(null);
+  const [layoutName, setLayoutName] = useState("");
+
+  let getSpaces = (num) => {
+    let spaces = "";
+    for (let i = 0; i < num; i++) {
+      spaces += " ";
+    }
+    return spaces;
+  };
+  let formatAndDownload = () => {
+    let kb = { ...kbMatrix };
+    let layers = Object.keys(kb);
+    let formatted = `enum layer_names {\n`;
+    layers.forEach((layer, layeridx) => {
+      formatted += `  ${layer}${layeridx === layers.length - 1 ? "" : ",\n"}`;
+    });
+    formatted += `\n};\n\n`;
+    formatted += `const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {\n`;
+    layers.forEach((layer, layeridx) => {
+      formatted += `  [${layer}] = ${layoutName}(\n\t\t`;
+      let longestCode = 0;
+      kb[layer].forEach((key) => {
+        
+        let keycode = key.code === "EMPTY" ? "KC_TRNS" : key.code;
+        if (keycode.length > longestCode) {
+          longestCode = keycode.length;
+        }
+      });
+      longestCode += 3;
+      kb[layer].forEach((key, keyidx) => {
+        let keycode = key.code === "EMPTY" ? "KC_TRNS" : key.code;
+        if (keyidx > 0 && key.y !== kb[layer][keyidx - 1].y) {
+          formatted += `\n\t\t`;
+          for (let i = 0; i < key.x; i++) {
+            formatted += getSpaces(longestCode);
+          }
+        }
+        let keycodeToUse =
+          keycode + (keyidx === kb[layer].length - 1 ? "\n" : `,`);
+        formatted += `${keycodeToUse}${
+          keycodeToUse.endsWith(",")
+            ? getSpaces(longestCode - keycodeToUse.length)
+            : ""
+        }`;
+      });
+      formatted += `  )${layeridx === layers.length - 1 ? "" : ","}\n`;
+    });
+
+    formatted += `};\n`;
+
+    let blob = new Blob([formatted], { type: "text/plain" });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "keymap.c";
+    a.click();
+  };
+
   return (
     <div
       data-theme={theme}
@@ -107,8 +167,24 @@ function App() {
         </div>
       ) : (
         <div className="w-10/12 h-auto aspect-[7/3] flex flex-col items-end gap-4 justify-center">
-          <KeyboardRenderer targetOS={targetOS} json={json} />
-          <div className="w-full h-fit flex items-center justify-end">
+          <KeyboardRenderer
+            targetOS={targetOS}
+            json={json}
+            kbMatrix={kbMatrix}
+            setKbMatrix={setKbMatrix}
+            setLayoutName={setLayoutName}
+          />
+          <div
+            id="button-section"
+            className="w-full h-fit flex items-center justify-between "
+          >
+            <button
+              id="download-button"
+              className="btn btn-success"
+              onClick={formatAndDownload}
+            >
+              Download Keymap
+            </button>
             <button
               onClick={() => {
                 setInputJson("");

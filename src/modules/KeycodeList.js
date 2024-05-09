@@ -64,7 +64,12 @@ export default function KeycodeList({
   };
 
   let manuallySelectedKey = (key) => {
-    if (targetOS !== "any" && key.os && key.os[targetOS] === false) {
+    console.log(key);
+    if (
+      targetOS !== "any" &&
+      Object.keys(key).includes("os") &&
+      !key.os[targetOS.toLowerCase()]
+    ) {
       sendToast(`Key ${key.code} not available for ${targetOS}`, "alert-error");
     }
     let newSelectedKey = { ...selectedKey };
