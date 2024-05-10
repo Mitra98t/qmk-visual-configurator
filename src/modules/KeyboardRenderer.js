@@ -165,7 +165,7 @@ export default function KeyboardRenderer({
                 />
               </svg>
             </div>
-            <p className={"text-xl pr-4 text-base-content "}>Edit Mode</p>
+            <p className={"text-xl pr-4 text-base-content "}>{layerEditMode? 'Save':'Edit Mode'}</p>
           </button>
           {kbMatrix &&
             Object.keys(kbMatrix).map((layer, idx) => {
@@ -296,7 +296,7 @@ export default function KeyboardRenderer({
                     }}
                     key={index}
                     className={
-                      "w-20 hover:scale-105 bg-secondary text-secondary-content rounded-xl flex items-center justify-center aspect-square relative " +
+                      "w-10 lg:w-12 xl:w-16 2xl:w-20   hover:scale-105 bg-secondary text-secondary-content rounded-xl flex items-center justify-center aspect-square relative " +
                       (selectedKey && key.id === selectedKey.id
                         ? " font-bold scale-110 shadow-md "
                         : "")

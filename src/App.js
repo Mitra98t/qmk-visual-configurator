@@ -180,7 +180,7 @@ function App() {
           </div>
         </div>
       ) : (
-        <div className="w-10/12 h-auto aspect-[7/3] flex flex-col items-end gap-4 justify-center">
+        <div className="px-6 w-full 2xl:px-0 2xl:w-10/12 h-auto aspect-[7/3] flex flex-col items-end gap-4 justify-center">
           <KeyboardRenderer
             targetOS={targetOS}
             json={json}
