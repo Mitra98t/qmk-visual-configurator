@@ -64,7 +64,6 @@ export default function KeycodeList({
   };
 
   let manuallySelectedKey = (key) => {
-    console.log(key);
     if (
       targetOS !== "any" &&
       Object.keys(key).includes("os") &&

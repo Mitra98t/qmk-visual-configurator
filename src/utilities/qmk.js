@@ -68,7 +68,6 @@ export class QmkCodes {
           res[structure[i] + "Unformatted"] = rowArray[i + 1];
           break;
         case "windows":
-          console.log(rowArray[i + 1]);
           res.os = {
             ...res.os,
             windows: rowArray[i + 1].includes("*N/A*")||rowArray[i + 1].includes("✔"),

@@ -9,7 +9,7 @@ export default function KeyboardRenderer({
   json,
   kbMatrix,
   setKbMatrix,
-  setLayoutName
+  setLayoutName,
 }) {
   const [kbData, setKbData] = useState(JSON.parse(json));
   const [gridDim, setGridDim] = useState({ width: 0, height: 0 });
@@ -41,7 +41,8 @@ export default function KeyboardRenderer({
   }, [kbMatrix]);
 
   let switchCodes = (from, to) => {
-    let kbM = kbMatrix[currentLayer].map((key) => {
+    let kbM = { ...kbMatrix };
+    kbM[currentLayer] = kbMatrix[currentLayer].map((key) => {
       if (key.code === from) {
         key.code = to;
       }
@@ -83,8 +84,6 @@ export default function KeyboardRenderer({
     setSelectedKey(null);
   };
 
-  
-
   let inputConfig = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -98,13 +97,124 @@ export default function KeyboardRenderer({
     reader.readAsText(file);
   };
 
+  const [layerEditMode, setLayerEditMode] = useState(false);
+  const [substitutingName, setSubstitutingName] = useState(null);
+
+  let changeLayerNames = () => {
+    let newLayer = { ...kbMatrix };
+    let newObject = {};
+    for (let key in newLayer) {
+      if (Object.keys(substitutingName).includes(key)) {
+        newObject[substitutingName[key]] = newLayer[key];
+      } else {
+        newObject[key] = newLayer[key];
+      }
+    }
+    newLayer = newObject;
+    setKbMatrix(newLayer);
+    setSubstitutingName(null);
+    setCurrentLayer((old) => Object.keys(substitutingName).includes(old) ? substitutingName[old] : old);
+  };
+
+
+  // useEffect(() => {
+  //   document.addEventListener("keydown", enterHandler, false);
+  //   return () => {
+  //     document.removeEventListener("keydown", enterHandler, false);
+  //   };
+  // }, []);
+
   return (
     <div className="w-full h-full flex flex-row items-center justify-center animationWrapper">
-      <div className="w-1/5 h-full flex flex-col items-center justify-between p-4">
+      <div className="w-1/5 h-full flex flex-col items-center justify-between pr-4 py-4">
         <div className="w-full h-full overflow-y-scroll scrollbar-hidden flex flex-col gap-2">
+          <button
+            onClick={() => {
+              if (layerEditMode && substitutingName !== null) {
+                changeLayerNames();
+              }
+              setLayerEditMode((old) => !old);
+            }}
+            className={
+              "w-fit h-fit flex flex-row items-center justify-start gap-2 rounded-full mb-2 bg-base-200 sticky top-0 z-10"
+            }
+          >
+            <div
+              className={
+                "w-12 p-2 h-auto rounded-full " +
+                (layerEditMode ? "bg-primary" : "bg-base-300")
+              }
+            >
+              <svg
+                dataSlot="icon"
+                fill="none"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                className={
+                  layerEditMode
+                    ? "stroke-primary-content"
+                    : "stroke-base-content"
+                }
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                />
+              </svg>
+            </div>
+            <p className={"text-xl pr-4 text-base-content "}>Edit Mode</p>
+          </button>
           {kbMatrix &&
             Object.keys(kbMatrix).map((layer, idx) => {
-              return (
+              return layerEditMode ? (
+                <div className="join w-full">
+                  <input
+                    type="text"
+                    value={
+                      substitutingName &&
+                      Object.keys(substitutingName).includes(layer)
+                        ? substitutingName[layer]
+                        : layer
+                    }
+                    onChange={(e) => {
+                      e.preventDefault();
+                      let substitute = { ...substitutingName };
+                      substitute[layer] = e.target.value;
+                      setSubstitutingName(substitute);
+                    }}
+                    className="input input-bordered join-item w-full"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      let newLayer = { ...kbMatrix };
+                      delete newLayer[layer];
+                      setKbMatrix(newLayer);
+                    }}
+                    className="btn btn-error join-item w-fit px-4"
+                  >
+                    <svg
+                      dataSlot="icon"
+                      fill="none"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      className="w-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
                 <button
                   key={layer}
                   onClick={() => {
@@ -118,7 +228,7 @@ export default function KeyboardRenderer({
                       : " btn-outline divide-base-content ")
                   }
                 >
-                  <p className="basis-2/3 h-full flex items-center justify-center">
+                  <p className="basis-2/3 h-full flex items-center justify-start pl-4">
                     {layer}
                   </p>
                   <p className="basis-1/3 h-full flex items-center justify-center">
@@ -137,12 +247,13 @@ export default function KeyboardRenderer({
               }}
               className="input input-bordered join-item w-full"
               placeholder="Layer Name"
+              disabled={layerEditMode}
             />
             <button
               key="add-layer"
               onClick={addLayer}
               className="btn join-item"
-              disabled={newLayerName === ""}
+              disabled={newLayerName === "" || layerEditMode}
             >
               {" "}
               addLayer
@@ -203,30 +314,30 @@ export default function KeyboardRenderer({
                 );
               })}
           </div>
-          <div className="w-full h-fit flex flex-row flex-wrap items-center justify-center gap-4">
+          <div className="w-fit h-fit grid justify-items-center grid-cols-2 grid-rows-2 gap-4">
             <button
               onClick={() => switchCodes("EMPTY", "KC_NO")}
-              className="btn btn-outline basis-1/3"
+              className="btn btn-outline w-full max-w-xs"
             >
               Set EMPTY to Ignore
             </button>
             <button
               onClick={() => switchCodes("EMPTY", "KC_TRNS")}
-              className="btn btn-outline basis-1/3"
+              className="btn btn-outline w-full max-w-xs"
             >
               Set EMPTY to TRNS
             </button>
             <button
-              onClick={() => switchCodes("KC_TRNS", "EMPTY")}
-              className="btn btn-outline basis-1/3"
-            >
-              Set TRNS to EMPTY
-            </button>
-            <button
               onClick={() => switchCodes("KC_NO", "EMPTY")}
-              className="btn btn-outline basis-1/3"
+              className="btn btn-outline w-full max-w-xs"
             >
               Set Ignore to EMPTY
+            </button>
+            <button
+              onClick={() => switchCodes("KC_TRNS", "EMPTY")}
+              className="btn btn-outline w-full max-w-xs"
+            >
+              Set TRNS to EMPTY
             </button>
           </div>
         </div>
