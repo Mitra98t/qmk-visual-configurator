@@ -130,7 +130,12 @@ export class QmkCodes {
 
   static parseConfig(configIn, kbMatrix, layoutName) {
     let kb = {};
-    let config = configIn.replace(/\s+/g, "");
+    let config = configIn.split("\n").map((el) => el.trim());
+    config = config.filter((el) => !el.startsWith("//"));
+    config= config.join(" ");
+    config = config.replace(/\s+/g, "");
+
+
     let layersInConfig = config.split(layoutName + "(");
 
     layersInConfig.forEach((layer) => {
@@ -151,7 +156,6 @@ export class QmkCodes {
       }
       return "";
     });
-
 
     layersInConfig.forEach((layer, layeridx) => {
       let layerSplit = layer.split(",");
