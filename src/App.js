@@ -133,7 +133,7 @@ function App() {
         </select>
       </label>
       {json === "" ? (
-        <div className="w-1/3 h-3/4 flex flex-col items-center justify-center animationWrapper bg-base-100">
+        <div className="w-4/5 xl:w-2/3 2xl:w-1/3 h-3/4 flex flex-col items-center justify-center animationWrapper bg-base-100">
           <div className="w-full h-full gap-4 flex flex-col items-start justify-start">
             <h1 className="text-2xl">
               Paste or upload your{" "}
