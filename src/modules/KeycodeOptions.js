@@ -78,7 +78,7 @@ export default function KeycodeOptions({
       <h1 className="text-xl font-semibold">{`Key Options of ${selectedKey.id}`}</h1>
       <select
         onChange={(e) => setKeyMode(e.target.value)}
-        className="select select-bordered w-full"
+        className="select select-bordered w-full max-w-xs select-sm"
       >
         {qmkLists &&
           Object.keys(qmkLists).map((list) => (
@@ -105,7 +105,7 @@ export default function KeycodeOptions({
                       setSelectedTargetLayer(null);
                     }}
                     className={
-                      "btn " +
+                      "btn btn-xs lg:btn-sm xl:btn-md " +
                       (layerMode === el.item.code
                         ? "btn-primary"
                         : "btn-neutral")

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import KeycodeGraphic from "./KeycodeGraphic";
 import KeycodeOptions from "./KeycodeOptions";
 import { QmkCodes } from "../utilities/qmk";
@@ -15,6 +16,7 @@ export default function KeyboardRenderer({
   const [gridDim, setGridDim] = useState({ width: 0, height: 0 });
   const [selectedKey, setSelectedKey] = useState(null);
   const [currentLayer, setCurrentLayer] = useState("base");
+  const [kbContainerWidth, kbContainerHeight] = useKeyboardContainerSize();
 
   useEffect(() => {
     setLayoutName(Object.keys(kbData.layouts)[0]);
@@ -39,6 +41,33 @@ export default function KeyboardRenderer({
 
     setGridDim({ height: maxX + 1, width: maxY + 1 });
   }, [kbMatrix]);
+
+  function useKeyboardContainerSize() {
+    const [size, setSize] = useState([0, 0]);
+    useLayoutEffect(() => {
+      function updateSize() {
+        let keyboardContainer = document.getElementById(
+          "keyboard-matrix-container"
+        );
+        if (!keyboardContainer) {
+          setSize([0, 0]);
+        } else {
+          setSize([
+            keyboardContainer.offsetWidth,
+            keyboardContainer.offsetHeight,
+          ]);
+          console.log(
+            keyboardContainer.offsetWidth,
+            keyboardContainer.offsetHeight
+          );
+        }
+      }
+      window.addEventListener("resize", updateSize);
+      updateSize();
+      return () => window.removeEventListener("resize", updateSize);
+    }, []);
+    return size;
+  }
 
   let switchCodes = (from, to) => {
     let kbM = { ...kbMatrix };
@@ -113,9 +142,10 @@ export default function KeyboardRenderer({
     newLayer = newObject;
     setKbMatrix(newLayer);
     setSubstitutingName(null);
-    setCurrentLayer((old) => Object.keys(substitutingName).includes(old) ? substitutingName[old] : old);
+    setCurrentLayer((old) =>
+      Object.keys(substitutingName).includes(old) ? substitutingName[old] : old
+    );
   };
-
 
   // useEffect(() => {
   //   document.addEventListener("keydown", enterHandler, false);
@@ -141,7 +171,7 @@ export default function KeyboardRenderer({
           >
             <div
               className={
-                "w-12 p-2 h-auto rounded-full " +
+                "h-full aspect-square p-2 rounded-full " +
                 (layerEditMode ? "bg-primary" : "bg-base-300")
               }
             >
@@ -165,7 +195,9 @@ export default function KeyboardRenderer({
                 />
               </svg>
             </div>
-            <p className={"text-xl pr-4 text-base-content "}>{layerEditMode? 'Save':'Edit Mode'}</p>
+            <p className={"text-base xl:text-lg whitespace-nowrap py-2 pr-4 text-base-content "}>
+              {layerEditMode ? "Save" : "Edit Mode"}
+            </p>
           </button>
           {kbMatrix &&
             Object.keys(kbMatrix).map((layer, idx) => {
@@ -281,7 +313,10 @@ export default function KeyboardRenderer({
         <div className="w-full h-full flex flex-col items-center justify-evenly basis-2/3">
           <div
             id="keyboard-matrix-container"
-            className={`w-fit h-fit gap-2 grid grid-cols-${gridDim.width} grid-rows-${gridDim.height}`}
+            className={`w-full justify-items-center grid grid-cols-${gridDim.width} grid-rows-${gridDim.height}`}
+            style={{
+              height: gridDim.height * (kbContainerWidth / gridDim.width),
+            }}
           >
             {kbMatrix &&
               kbMatrix[currentLayer] &&
@@ -296,12 +331,14 @@ export default function KeyboardRenderer({
                     }}
                     key={index}
                     className={
-                      "w-10 lg:w-12 xl:w-16 2xl:w-20   hover:scale-105 bg-secondary text-secondary-content rounded-xl flex items-center justify-center aspect-square relative " +
+                      "hover:scale-105 bg-secondary text-secondary-content rounded-xl flex items-center justify-center relative " +
                       (selectedKey && key.id === selectedKey.id
                         ? " font-bold scale-110 shadow-md "
                         : "")
                     }
                     style={{
+                      aspectRatio: "1/1",
+                      width: kbContainerWidth / (gridDim.width + 2),
                       gridColumnStart: key.matrix[1] + 1,
                       gridRowStart: key.matrix[0] + 1,
                     }}

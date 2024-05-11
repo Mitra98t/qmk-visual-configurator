@@ -87,14 +87,14 @@ export default function KeycodeList({
         {keyboardInput && (
           <input
             id="keyboard-input"
-            className="input input-bordered w-full py-2"
+            className="input input-bordered w-full max-w-xs input-sm"
             placeholder="Clone keyboard input"
             onKeyDown={readKeycode}
             value={selectedKey.code === "EMPTY" ? "" : selectedKey.code}
           />
         )}
         <input
-          className="input input-bordered w-full py-2"
+          className="input input-bordered w-full max-w-xs input-sm"
           placeholder="Search key"
           onChange={(e) => setKeyFilter(e.target.value)}
           value={keyFilter}
@@ -106,11 +106,11 @@ export default function KeycodeList({
             <button
               key={el.item.code}
               onClick={() => manuallySelectedKey(el.item)}
-              className="btn btn-neutral h-fit flex-nowrap py-2 flex flex-col items-center justify-center w-full"
+              className="btn btn-neutral btn-sm w-full flex flex-col justify-start items-center h-fit py-2"
             >
-              <p className="test-base">{el.item.code}</p>
+              <p className="">{el.item.code}</p>
               <p
-                className="test-sx font-thin"
+                className="font-thin"
                 dangerouslySetInnerHTML={{
                   __html: el.item.descriptionUnformatted,
                 }}
