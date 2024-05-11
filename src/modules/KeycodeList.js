@@ -87,20 +87,20 @@ export default function KeycodeList({
         {keyboardInput && (
           <input
             id="keyboard-input"
-            className="input input-bordered w-full max-w-xs input-sm"
+            className="input input-bordered w-full input-sm"
             placeholder="Clone keyboard input"
             onKeyDown={readKeycode}
             value={selectedKey.code === "EMPTY" ? "" : selectedKey.code}
           />
         )}
         <input
-          className="input input-bordered w-full max-w-xs input-sm"
+          className="input input-bordered w-full input-sm"
           placeholder="Search key"
           onChange={(e) => setKeyFilter(e.target.value)}
           value={keyFilter}
         />
       </div>
-      <div className="w-full h-full flex flex-col items-start justify-start gap-2 overflow-y-scroll scrollbar-hidden">
+      <div className="w-full h-full flex flex-col items-start justify-start gap-2 overflow-y-scroll scrollbar-thumb-base-100 scrollbar-track-base-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thin">
         {listShow &&
           listShow.map((el) => (
             <button

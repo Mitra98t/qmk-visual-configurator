@@ -143,7 +143,7 @@ function App() {
             />
             <div className="mockup-code w-full h-full">
               <textarea
-                className="w-full h-full bg-transparent rounded-lg focus:ring-0 focus:outline-none px-6 scrollbar-hidden"
+                className="w-full h-full bg-transparent rounded-lg focus:ring-0 focus:outline-none px-6 scrollbar-none"
                 placeholder="Paste your JSON here"
                 onChange={(e) => {
                   e.preventDefault();
@@ -180,7 +180,7 @@ function App() {
           </div>
         </div>
       ) : (
-        <div className="px-6 w-full 2xl:px-0 2xl:w-10/12 h-auto aspect-[7/3] flex flex-col items-end gap-4 justify-center">
+        <div className="w-full h-full py-24 xl:w-10/12 xl:h-3/4 xl:px-0 xl:py-0 px-6 flex flex-col items-end gap-4 justify-center">
           <KeyboardRenderer
             targetOS={targetOS}
             json={json}

@@ -78,7 +78,7 @@ export default function KeycodeOptions({
       <h1 className="text-xl font-semibold">{`Key Options of ${selectedKey.id}`}</h1>
       <select
         onChange={(e) => setKeyMode(e.target.value)}
-        className="select select-bordered w-full max-w-xs select-sm"
+        className="select select-bordered w-full select-sm"
       >
         {qmkLists &&
           Object.keys(qmkLists).map((list) => (

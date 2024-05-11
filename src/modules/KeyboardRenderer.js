@@ -156,8 +156,8 @@ export default function KeyboardRenderer({
 
   return (
     <div className="w-full h-full flex flex-row items-center justify-center animationWrapper">
-      <div className="w-1/5 h-full flex flex-col items-center justify-between pr-4 py-4">
-        <div className="w-full h-full overflow-y-scroll scrollbar-hidden flex flex-col gap-2">
+      <div className="w-1/5 min-w-60 h-full flex flex-col items-center justify-between pr-4 py-4">
+        <div className="w-full h-full overflow-y-scroll scrollbar-none flex flex-col gap-2">
           <button
             onClick={() => {
               if (layerEditMode && substitutingName !== null) {
@@ -195,7 +195,11 @@ export default function KeyboardRenderer({
                 />
               </svg>
             </div>
-            <p className={"text-base xl:text-lg whitespace-nowrap py-2 pr-4 text-base-content "}>
+            <p
+              className={
+                "text-base xl:text-lg whitespace-nowrap py-2 pr-4 text-base-content "
+              }
+            >
               {layerEditMode ? "Save" : "Edit Mode"}
             </p>
           </button>
@@ -292,12 +296,17 @@ export default function KeyboardRenderer({
             </button>
           </div>
         </div>
-        <input
-          type="file"
-          id="file"
-          className="file-input file-input-bordered file-input-md w-full max-w-xs "
-          onChange={inputConfig}
-        />
+        <label className="form-control w-full max-w-xs">
+          <div className="label">
+            <span className="label-text">Load Config</span>
+          </div>
+          <input
+            type="file"
+            id="file"
+            className="file-input file-input-bordered file-input-md w-full max-w-xs "
+            onChange={inputConfig}
+          />
+        </label>
       </div>
       <div className="w-full h-full bg-base-200 rounded-3xl py-4 px-6 gap-4 flex flex-row items-start justify-between">
         <div className="w-full h-full basis-1/3 flex items-center justify-center">
