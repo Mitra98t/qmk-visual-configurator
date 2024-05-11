@@ -1,6 +1,7 @@
 import "./App.css";
 import KeyboardRenderer from "./modules/KeyboardRenderer";
 import { useEffect, useState } from "react";
+import { sendToast } from "./utilities/utils";
 
 function App() {
   let themesList = [
@@ -98,28 +99,39 @@ function App() {
       data-theme={theme}
       className="w-full h-screen flex items-center justify-center animationWrapper"
     >
-      <select
-        className="absolute top-4 right-4 select select-bordered select-sm w-fit max-w-xs"
-        value={theme}
-        onChange={(e) => setTheme(e.target.value)}
-      >
-        {themesList.sort().map((theme) => (
-          <option value={theme} key={theme}>
-            {theme === "valentine" ? "polaretto" : theme}
-          </option>
-        ))}
-      </select>
-      <select
-        className="absolute top-4 left-4 select select-bordered select-sm w-fit max-w-xs"
-        value={targetOS}
-        onChange={(e) => setTargetOS(e.target.value)}
-      >
-        {targetOperatingSystems.map((os) => (
-          <option defaultChecked={targetOS === os} value={os} key={os}>
-            {os}
-          </option>
-        ))}
-      </select>
+      <label className="absolute top-0 right-4 form-control w-fit">
+        <div className="label">
+          <span className="label-text">Theme Selection</span>
+        </div>
+        <select
+          className="select select-bordered select-sm w-fit max-w-xs"
+          value={theme}
+          onChange={(e) => setTheme(e.target.value)}
+        >
+          {themesList.sort().map((theme) => (
+            <option value={theme} key={theme}>
+              {theme === "valentine" ? "polaretto" : theme}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="absolute top-0 left-4 form-control w-fit ">
+        <div className="label">
+          <span className="label-text">Operating System Selection</span>
+        </div>
+        <select
+          className="select select-bordered select-sm w-fit max-w-xs"
+          value={targetOS}
+          onChange={(e) => setTargetOS(e.target.value)}
+        >
+          {targetOperatingSystems.map((os) => (
+            <option defaultChecked={targetOS === os} value={os} key={os}>
+              {os}
+            </option>
+          ))}
+        </select>
+      </label>
       {json === "" ? (
         <div className="w-1/3 h-3/4 flex flex-col items-center justify-center animationWrapper bg-base-100">
           <div className="w-full h-full gap-4 flex flex-col items-start justify-start">
@@ -134,11 +146,16 @@ function App() {
               className="file-input file-input-bordered w-full max-w-xs"
               onChange={(e) => {
                 let file = e.target.files[0];
+                if(!file.name.endsWith('.json')) {
+                  sendToast("Invalid file type", "alert-error");
+                  return;
+                }
                 let reader = new FileReader();
                 reader.onload = (e) => {
                   setInputJson(e.target.result);
                 };
                 reader.readAsText(file);
+                
               }}
             />
             <div className="mockup-code w-full h-full">
@@ -180,7 +197,7 @@ function App() {
           </div>
         </div>
       ) : (
-        <div className="w-full h-full py-24 xl:w-10/12 xl:h-3/4 xl:px-0 xl:py-0 px-6 flex flex-col items-end gap-4 justify-center">
+        <div className="w-full h-full py-28 xl:w-10/12 xl:h-3/4 xl:px-0 xl:py-0 px-6 flex flex-col items-end gap-4 justify-center">
           <KeyboardRenderer
             targetOS={targetOS}
             json={json}
@@ -211,8 +228,8 @@ function App() {
           </div>
         </div>
       )}
-      <div className="toast" id="toaster"></div>
-      <div className=" absolute bottom-4 right-4">
+      <div className="toast z-50" id="toaster"></div>
+      <div className=" absolute bottom-4 left-4">
         <a
           href="https://github.com/Mitra98t/qmk-visual-configurator"
           target="_blank"

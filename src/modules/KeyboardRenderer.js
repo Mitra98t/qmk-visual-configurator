@@ -4,6 +4,7 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import KeycodeGraphic from "./KeycodeGraphic";
 import KeycodeOptions from "./KeycodeOptions";
 import { QmkCodes } from "../utilities/qmk";
+import { sendToast } from "../utilities/utils";
 
 export default function KeyboardRenderer({
   targetOS,
@@ -56,10 +57,6 @@ export default function KeyboardRenderer({
             keyboardContainer.offsetWidth,
             keyboardContainer.offsetHeight,
           ]);
-          console.log(
-            keyboardContainer.offsetWidth,
-            keyboardContainer.offsetHeight
-          );
         }
       }
       window.addEventListener("resize", updateSize);
@@ -115,6 +112,10 @@ export default function KeyboardRenderer({
 
   let inputConfig = (e) => {
     const file = e.target.files[0];
+    if(!file.name.endsWith('.c')) {
+      sendToast("Invalid file type", "alert-error");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target.result;
@@ -298,7 +299,7 @@ export default function KeyboardRenderer({
         </div>
         <label className="form-control w-full max-w-xs">
           <div className="label">
-            <span className="label-text">Load Config</span>
+            <span className="label-text">Load <code className="bg-base-300 px-1">keymap.c</code></span>
           </div>
           <input
             type="file"
