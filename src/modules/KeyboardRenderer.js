@@ -12,6 +12,7 @@ export default function KeyboardRenderer({
   kbMatrix,
   setKbMatrix,
   setLayoutName,
+  layoutName
 }) {
   const [kbData, setKbData] = useState(JSON.parse(json));
   const [gridDim, setGridDim] = useState({ width: 0, height: 0 });
@@ -120,7 +121,7 @@ export default function KeyboardRenderer({
     reader.onload = (e) => {
       const content = e.target.result;
 
-      let kbm = QmkCodes.parseConfig(content, kbMatrix);
+      let kbm = QmkCodes.parseConfig(content, kbMatrix, layoutName);
       setCurrentLayer(Object.keys(kbm)[0]);
       setKbMatrix(kbm);
     };

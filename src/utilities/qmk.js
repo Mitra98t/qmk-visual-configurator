@@ -70,19 +70,25 @@ export class QmkCodes {
         case "windows":
           res.os = {
             ...res.os,
-            windows: rowArray[i + 1].includes("*N/A*")||rowArray[i + 1].includes("✔"),
+            windows:
+              rowArray[i + 1].includes("*N/A*") ||
+              rowArray[i + 1].includes("✔"),
           };
           break;
         case "macos":
           res.os = {
             ...res.os,
-            macos: rowArray[i + 1].includes("*N/A*")||rowArray[i + 1].includes("✔"),
+            macos:
+              rowArray[i + 1].includes("*N/A*") ||
+              rowArray[i + 1].includes("✔"),
           };
           break;
         case "linux":
           res.os = {
             ...res.os,
-            linux: rowArray[i + 1].includes("*N/A*")||rowArray[i + 1].includes("✔"),
+            linux:
+              rowArray[i + 1].includes("*N/A*") ||
+              rowArray[i + 1].includes("✔"),
           };
           break;
         default:
@@ -122,53 +128,49 @@ export class QmkCodes {
     return res;
   }
 
-  static parseConfig(config, kbMatrix) {
-    let kb = { ...kbMatrix };
-    let configArray = config.split("\n");
-    let layers = [];
-    configArray.forEach((line, idx) => {
-      if (line.includes("enum") && line.includes("layer_names")) {
-        layers = config.split("\n").slice(idx, configArray.length).join("");
-        layers = layers.split("}")[0];
-        layers = layers.split("{")[1];
-        layers = layers.split(",");
-        layers = layers.map((el) => el.trim());
-        layers.forEach((layer) => {
-          kb[layer] = Object.values(kb)[0].map((key) => {
-            return { ...key };
-          });
-        });
+  static parseConfig(configIn, kbMatrix, layoutName) {
+    let kb = {};
+    let config = configIn.replace(/\s+/g, "");
+    let layersInConfig = config.split(layoutName + "(");
+
+    layersInConfig.forEach((layer) => {
+      if (layer.endsWith("]=")) {
+        let layerSplit = layer.split("[");
+        let layerName = layer.split("[")[layerSplit.length - 1].split("]")[0];
+        kb[layerName] = Object.values(kbMatrix)[0];
       }
     });
 
-    let keymaps = config.replace(/\s+/g, "").split("constuint16_t")[1];
-    keymaps = keymaps.split("{")[1].split("};")[0];
-    keymaps = keymaps.split("[");
-    keymaps.shift();
-    keymaps = keymaps.map((km) => {
-      let layername = km.split("]")[0];
-      let kmarr = km.split("(");
-      kmarr.shift();
-      kmarr = kmarr.join("(");
-      if (kmarr.endsWith(")")) kmarr = kmarr.substring(0, kmarr.length - 1);
-      if (kmarr.endsWith("),")) kmarr = kmarr.substring(0, kmarr.length - 2);
-      kmarr = kmarr.split(",");
-      kmarr.forEach((el, idx) => {
-        if (el.includes("(")) {
-          kmarr[idx] += ", " + kmarr[idx + 1];
-          kmarr.splice(idx + 1, 1);
-        }
-      });
-      return { layer: layername, keymaps: kmarr };
-    });
-    keymaps.forEach((km, idx) => {
-      km.keymaps.forEach((key, idx) => {
-        kb[km.layer][idx].code = key;
-      });
+    layersInConfig.shift();
+
+    layersInConfig = layersInConfig.map((layer, idx) => {
+      if (idx === layersInConfig.length - 1) {
+        return layer.split(")};")[0];
+      } else if (layer.endsWith("]=")) {
+        return layer.split("),[")[0];
+      }
+      return "";
     });
 
-    Object.keys(kb).forEach((layer) => {
-      if (!layers.includes(layer)) delete kb[layer];
+
+    layersInConfig.forEach((layer, layeridx) => {
+      let layerSplit = layer.split(",");
+
+      layerSplit.forEach((el, idx) => {
+        if (el.includes("(") && !el.includes(")")) {
+          layerSplit[idx] += ", " + layerSplit[idx + 1];
+          layerSplit.splice(idx + 1, 1);
+        }
+      });
+
+      let keysArray = [];
+      layerSplit.forEach((key, keyidx) => {
+        let keystruct = { ...Object.values(kb)[0][keyidx] };
+        keystruct.code = key;
+        keysArray.push(keystruct);
+      });
+
+      kb[Object.keys(kb)[layeridx]] = keysArray;
     });
 
     return kb;

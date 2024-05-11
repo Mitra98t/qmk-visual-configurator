@@ -204,6 +204,7 @@ function App() {
             kbMatrix={kbMatrix}
             setKbMatrix={setKbMatrix}
             setLayoutName={setLayoutName}
+            layoutName={layoutName}
           />
           <div
             id="button-section"
